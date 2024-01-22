@@ -24,19 +24,27 @@
         <div class="collapse navbar-collapse" id="navbarText">
           <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-              <a class="nav-link" href="/djangoapp/">Home <span class="sr-only">(current)</span></a>
+              <a class="nav-link" href="/djangoapp/">Dealership Review <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/djangoapp/about">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Pricing</a>
+              <a class="nav-link" href="/djangoapp/about/">About</a>
             </li>
           </ul>
-          <span class="navbar-text">
-            Navbar text with an inline element
-          </span>
         </div>
+        {% if user.is_authenticated %}
+            <div class="ml-auto">
+                <a class="h6 mr-2">Welcome, {{user.username}}</a>
+                <a class="btn btn-outline-danger btn-sm" type="button" href="/djangoapp/logout/">Logout</a>
+            </div> 
+            {% else %}
+            <form action="/djangoapp/login/"  method="post" class="ml-auto">
+                {% csrf_token %}<!--Important do not touch-->
+                <input class="" type="text" id="username" name="username" placeholder="UserName:">
+                <input type="password" id="pword" name="pword" placeholder="Password:">
+                <input class="btn btn-outline-success btn-sm" type="submit" value="Login">
+                <a class="btn btn-outline-warning btn-sm" type="submit" href="/djangoapp/signup/">Sign Up</a>
+            </form>
+            {% endif %}
       </nav>
     <!--Add a dealer table here -->
 
@@ -62,7 +70,7 @@
               Useful links
             </h6>
             <p>
-              <a href="/djangoapp/contact" class="text-reset">Contact Us</a>
+              <a href="/djangoapp/contact/" class="text-reset">Contact Us</a>
             </p>
           </div>
   
