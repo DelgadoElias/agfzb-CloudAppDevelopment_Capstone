@@ -13,6 +13,7 @@ urlpatterns = [
     path(route='about', view=views.about, name='About Us'),
 
     # path for contact us view
+    path(route='contact', view=views.contact, name='Contact Us'),
 
     # path for registration
 
