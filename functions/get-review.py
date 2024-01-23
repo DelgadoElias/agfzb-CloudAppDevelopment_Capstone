@@ -24,7 +24,7 @@ def get_reviews():
         return jsonify({"error": "'id' parameter must be an integer"}), 400
     # Define the query based on the 'dealership' ID
     selector = {
-        'dealership': dealership_id
+        'id': dealership_id
     }
     # Execute the query using the query method
     result = db.get_query_result(selector)

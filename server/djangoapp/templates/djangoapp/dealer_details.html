@@ -10,7 +10,134 @@
     <body>
 
     <!--Add a nav bar here -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/djangoapp/">Cars dealership</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarText">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="/djangoapp/">Dealership Review <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/djangoapp/about/">About</a>
+            </li>
+          </ul>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="ml-auto">
+                <a class="h6 mr-2">Welcome, {{user.username}}</a>
+                <a class="btn btn-outline-danger btn-sm" type="button" href="/djangoapp/logout/">Logout</a>
+            </div> 
+            {% else %}
+            <form action="/djangoapp/login/"  method="post" class="ml-auto">
+                {% csrf_token %}<!--Important do not touch-->
+                <input class="" type="text" id="username" name="username" placeholder="UserName:">
+                <input type="password" id="pword" name="pword" placeholder="Password:">
+                <input class="btn btn-outline-success btn-sm" type="submit" value="Login">
+                <a class="btn btn-outline-warning btn-sm" type="submit" href="/djangoapp/registration/">Sign Up</a>
+            </form>
+            {% endif %}
+      </nav>
+    <!---->
+    <main role="main" class="container pt-3">
+        
+        {% if reviews %}
+        <div class="card-columns">
+            {% for review in reviews %}
+            
+                <div class="card" >
+                    <div class="card-header">
+                        <img class="card-img-left" src="{{MEDIA_URL}}/emoji/{{review.sentiment}}.png" width="40" height="40">
+                    </div>
+                    
+                     <div class="card-body text-center">
+                        <h5 class="card-title">{{review.name}}</h5>
+                        <p class="card-text">{{review.review}}</p>
+                     </div>
+                     <div class="card-footer text-muted text-center" style="min-height: 74px;">
+                    {% if review.purchase == True%}   
+                        {{review.car_year}} {{review.car_make}} {{review.car_model}}
+                        <br>
+                        Purchased on: {{review.purchase_date}}
+                    {% else %}
+                        <br>
+                        Reviewer did not make a purchase.
+                    {% endif %}
+                    </div>
+                </div>
+                
+            {% endfor %}
+            <div class="card ">
+                     <div class="card-header">
+                            <h5 class="card-title text-center pt-1">Write Your Own Review!</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <p class="card-text">Want to review this dealership?</p>
+                        <p class="card-text">Click the button below!</p>
+                    </div>
+                    <div class="card-footer text-center" style="min-height: 74px;">
+                        {% if user.is_authenticated %}
+                            <a class="btn btn-warning btn-lg" type="submit" href="{% url 'djangoapp:add_review' dealer_id %}">Write a Review!</a>
+                        {% else %}
+                            <p class="btn btn-success btn-lg" disabled>Login to write a review!</p>
+                        {% endif %}
+                    </div>
+                     
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                     <div class="card-header">
+                            <h5 class="card-title text-center">No Reviews</h5>
+                    </div>
+                    <div class="card-body">
+                    
+                    
+                    <p class="card-text text-center">There are no reviews for this dealership. Be the first to write one!</p>
 
+                    </div>
+                    <div class="card-footer text-center" style="min-height: 74px;">
+                        {% if user.is_authenticated %}
+                            <a class="btn btn-warning btn-lg" type="submit" href="{% url 'djangoapp:add_review' dealer_id %}">Write a Review!</a>
+                        {% else %}
+                            <p class="btn btn-success nohover">Login to write a review!</p>
+                        {% endif %}
+                    </div>
+                     
+                </div>
+        {% endif %}
+</main>
+<!-- Add reviews as cards -->
+    <!--Footer and navbar-->
+    <footer class="text-center text-lg-start bg-body-tertiary text-muted">
+  
+        <section class="">
+          <div class="container text-center text-md-start mt-5">
+            <div class="row mt-3">
+              <div class="col-md-3 col-lg-4 col-xl-3 mx-auto mb-4">
+                <h6 class="text-uppercase fw-bold mb-4">
+                  <i class="fas fa-gem me-3"></i>Company name
+                </h6>
+                <p>
+                  Here you can use rows and columns to organize your footer content. Lorem ipsum
+                  dolor sit amet, consectetur adipisicing elit.
+                </p>
+              </div>  
+              <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mb-4">
+                <h6 class="text-uppercase fw-bold mb-4">
+                  Useful links
+                </h6>
+                <p>
+                  <a href="/djangoapp/contact/" class="text-reset">Contact Us</a>
+                </p>
+              </div>
+      
+          </div>
+        </section>
+      
+      </footer>
     <!-- Add reviews as cards -->
 
     </body>

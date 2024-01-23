@@ -42,12 +42,39 @@
                 <input class="" type="text" id="username" name="username" placeholder="UserName:">
                 <input type="password" id="pword" name="pword" placeholder="Password:">
                 <input class="btn btn-outline-success btn-sm" type="submit" value="Login">
-                <a class="btn btn-outline-warning btn-sm" type="submit" href="/djangoapp/signup/">Sign Up</a>
+                <a class="btn btn-outline-warning btn-sm" type="submit" href="/djangoapp/registration/">Sign Up</a>
             </form>
             {% endif %}
       </nav>
     <!--Add a dealer table here -->
-
+    <!--Add a dealer table here -->
+    <main role="main" class="container pt-3">
+        <table class="table" id="table" data-filter-control="true">
+            <thead>
+                <tr>
+                    <th data-field="id">ID</th>
+                    <th data-field="full_name">Dealership Name</th>
+                    <th data-field="city">City</th>
+                    <th data-field="address">Address</th>
+                    <th data-field="zip">ZIP Code</th>
+                    <th data-field="state" data-filter-control="select">State</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for dealer in dealership_list %}
+                    <tr>
+                        <td>{{dealer.id}}</td>
+                        <td><a href="{% url 'djangoapp:dealer_details' dealer.id %}">{{dealer.full_name}}</a></td>
+                        <td>{{dealer.city}}</td>
+                        <td>{{dealer.address}}</td>
+                        <td>{{dealer.zip}}</td>
+                        <td>{{dealer.st}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
 
 
     <!-- Footer -->
