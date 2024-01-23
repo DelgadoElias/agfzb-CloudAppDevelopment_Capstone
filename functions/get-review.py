@@ -1,61 +1,54 @@
-from flask import Flask, request, jsonify
 from cloudant.client import Cloudant
-from cloudant.error import CloudantException
-from cloudant.result import Result, ResultByKey
-
+from cloudant.query import Query
+from flask import Flask, jsonify, request
+import atexit
+#Add your Cloudant service credentials here
+cloudant_username = '3aa297bd-7a6c-4bd8-b39b-ed6410efe4e8-bluemix'
+cloudant_api_key = '_byEPlSJlhupgrRH3elkFh0lbsBiHUHQh67-d6P_fGyF'
+cloudant_url = 'https://3aa297bd-7a6c-4bd8-b39b-ed6410efe4e8-bluemix.cloudantnosqldb.appdomain.cloud'
+client = Cloudant.iam(cloudant_username, cloudant_api_key, connect=True, url=cloudant_url)
+session = client.session()
+print('Databases:', client.all_dbs())
+db = client['reviews']
 app = Flask(__name__)
-
-def db_cloudant_connect():
-    try:
-        client = Cloudant(
-            '3aa297bd-7a6c-4bd8-b39b-ed6410efe4e8-bluemix',
-            '_byEPlSJlhupgrRH3elkFh0lbsBiHUHQh67-d6P_fGyF',
-            url='https://3aa297bd-7a6c-4bd8-b39b-ed6410efe4e8-bluemix.cloudantnosqldb.appdomain.cloud',
-            connect=True
-        )
-        db = client['reviews']
-        print('¡Connection Success! Connected to DB')
-        return db
-    except CloudantException as ce:
-        print('Connection error: ' + ce.message + ' for DB Cloudant')
-        raise ce
-
-db = db_cloudant_connect()
-
-@app.route('/api/review', methods=['GET'])
+@app.route('/api/get_reviews', methods=['GET'])
 def get_reviews():
-    dealer_id = request.args.get('dealerId')
-
-    if not dealer_id:
-        return jsonify({'error': 'dealerId param required'}), 400
-
+    dealership_id = request.args.get('id')
+    # Check if "id" parameter is missing
+    if dealership_id is None:
+        return jsonify({"error": "Missing 'id' parameter in the URL"}), 400
+    # Convert the "id" parameter to an integer (assuming "id" should be an integer)
     try:
-        result_collection = Result(db.all_docs, include_docs=True, conflicts=True)
-        reviews = [doc['doc'] for doc in result_collection if 'dealer_id' in doc['doc'] and doc['doc']['dealer_id'] == int(dealer_id)]
-
-        if not reviews:
-            return jsonify({'error': 'dealerId does not exist'}), 404
-
-        return jsonify(reviews)
-    except Exception as e:
-        print('reviews error:', str(e))
-        return jsonify({'error': 'Something went wrong on the server'}), 500
-
-@app.route('/api/review', methods=['POST'])
+        dealership_id = int(dealership_id)
+    except ValueError:
+        return jsonify({"error": "'id' parameter must be an integer"}), 400
+    # Define the query based on the 'dealership' ID
+    selector = {
+        'dealership': dealership_id
+    }
+    # Execute the query using the query method
+    result = db.get_query_result(selector)
+    # Create a list to store the documents
+    data_list = []
+    # Iterate through the results and add documents to the list
+    for doc in result:
+        data_list.append(doc)
+    # Return the data as JSON
+    return jsonify(data_list)
+@app.route('/api/post_review', methods=['POST'])
 def post_review():
-    try:
-        review_data = request.get_json()
-
-        if 'review' not in review_data:
-            return jsonify({'error': '"review" object is required'}), 400
-
-        new_review = review_data['review']
-        db.create_document(new_review)
-
-        return jsonify({'message': 'Review created successfully'}), 201
-    except Exception as e:
-        print('Error in review creation:', str(e))
-        return jsonify({'error': 'Something went wrong on the server'}), 500
-
+    if not request.json:
+        abort(400, description='Invalid JSON data')
+    
+    # Extract review data from the request JSON
+    review_data = request.json
+    # Validate that the required fields are present in the review data
+    required_fields = ['id', 'name', 'dealership', 'review', 'purchase', 'purchase_date', 'car_make', 'car_model', 'car_year']
+    for field in required_fields:
+        if field not in review_data:
+            abort(400, description=f'Missing required field: {field}')
+    # Save the review data as a new document in the Cloudant database
+    db.create_document(review_data)
+    return jsonify({"message": "Review posted successfully"}), 201
 if __name__ == '__main__':
     app.run(debug=True)
